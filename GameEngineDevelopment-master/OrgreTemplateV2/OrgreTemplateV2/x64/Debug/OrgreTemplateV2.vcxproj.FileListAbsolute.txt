@@ -1,0 +1,2 @@
+C:\Users\inpar\Documents\GitHub\GAME3121\GameEngineDevelopment-master\OrgreTemplateV2\OrgreTemplateV2\x64\Debug\OrgreTemplateV2.exe
+C:\Users\inpar\Documents\GitHub\GAME3121\GameEngineDevelopment-master\OrgreTemplateV2\OrgreTemplateV2\x64\Debug\OrgreTemplateV2.pdb
