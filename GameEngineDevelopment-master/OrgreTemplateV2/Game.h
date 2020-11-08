@@ -1,24 +1,11 @@
-/***********************************************************************;
-* Project            : Single Player Paddle Game
-*
-* Program name       : "Game.h"
-*
-* Author             : David Gasinec
-*
-* Student Number     : 101187910
-*
-* Date created       : 20/10/09
-*
-* Description        : Methods and attributes of the Game.
-*
-* Last modified      : 20/10/28
-*
-* Revision History   :
-*
-* Date        Author Ref    Revision (Date in YYYYMMDD format)
-* 20/10/28    David Gasinec       Created script
-*
-|**********************************************************************/
+/***********************************************
+* Project            : Doodle Jump Game
+* Author             : Joon Young Sun
+* Student Number     : 101216511
+* Description        : Doodle Jump Game
+* Last modified      : 20/11/08
+|***********************************************/
+
 #include "Ogre.h"
 #include "OgreApplicationContext.h"
 #include "OgreInput.h"
@@ -29,50 +16,64 @@
 #include <string>
 #include "Platform.h"
 #include "Player.h"
-
+#include "Physics.h"
 
 
 class Game : public OgreBites::ApplicationContext, public OgreBites::InputListener {
 
 private: 
 
-    int mFpsNum;
-    int mThrottleFPSChange;
-    int mThrottleTPUChange;
-    int mTpuNum;
-    int mPlayerScore = 0;
+    int m_FpsNum;
+    int m_ThrottleFPSChange;
+    int m_ThrottleTPUChange;
+    int m_TpuNum;
+    int m_PlayerScore = 0;
 
-    Ogre::Root* root;
+    Ogre::Root* m_Root;
    
-    OgreBites::TrayManager* mTrayMgr;
-    OgreBites::TrayListener myTrayListener;
-    OgreBites::Label* pTpuLabel;
-    OgreBites::Label* pTpu;
-    OgreBites::Label* pFpsLabel;
-    OgreBites::Label* pFps; 
-    OgreBites::Label* playerLb;
-    OgreBites::Label* playerSc;
+    OgreBites::TrayManager* m_TrayMgr;
+    OgreBites::TrayListener m_MyTrayListener;
 
-    Ogre::MaterialPtr backGroundImage;
-    Ogre::MaterialPtr playerMat;
-    Ogre::Rectangle2D* rect;
-    Ogre::SceneNode* rectNode;
-    Ogre::AxisAlignedBox aabInf;
+    //Labels and Fps
+    OgreBites::Label* m_pTpuLabel;
+    OgreBites::Label* m_pTpu;
+    OgreBites::Label* m_pFpsLabel;
+    OgreBites::Label* m_pFps; 
+    OgreBites::Label* m_PlayerLabel;
+    OgreBites::Label* m_playerScene;
 
-    Player* playerCharacter;
-    Platform* floor;
-    Platform* platformA;
-    Platform* platformB;
+
+    //Rectangle Nodes
+    Ogre::Rectangle2D* m_Rectangle;
+    Ogre::SceneNode* m_RectangleNode;
+
+    //Player
+    Player* m_Player;
+
+    //Platforms
+    Platform* m_FloorPlatform;
+    Platform* m_FirstPlatform;
+    Platform* m_SecondPlatform;
+    Platform* m_TotalPlatforms[3];
+
+    //Materials
+    Ogre::MaterialPtr m_BackgroundMaterial;
+    Ogre::MaterialPtr m_PlayerMaterial;
+    Ogre::MaterialPtr m_PlatformMaterial;
+
+    //Physics
+    Physics* m_Physics;
+
 
 public:
     Game();
     ~Game();
    // virtual ~Game() {}
 
+
     void setup();
     bool keyPressed(const OgreBites::KeyboardEvent& evt);
     bool frameRenderingQueued(const Ogre::FrameEvent& evt);
-    void processEvents();
     void run();
     void update();
 };

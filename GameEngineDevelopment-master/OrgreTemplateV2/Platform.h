@@ -1,24 +1,10 @@
-/***********************************************************************;
-* Project            : Simple Platform Game
-*
-* Program name       : "Jump Jump"
-*
-* Author             : David Gasinec
-*
-* Student Number     : 101187910
-*
-* Date created       : 20/10/28
-*
-* Description        : Simple pong game in OGRE.
-*
-* Last modified      : 20/10/28
-*
-* Revision History   :
-*
-* Date        Author Ref    Revision (Date in YYYYMMDD format)
-* 20/10/10    David Gasinec        Created Script.
-*
-|**********************************************************************/
+/***********************************************
+* Project            : Doodle Jump Game
+* Author             : Joon Young Sun
+* Student Number     : 101216511
+* Description        : Doodle Jump Game
+* Last modified      : 20/11/08
+|***********************************************/
 #pragma once
 #include "Ogre.h"
 
@@ -26,18 +12,17 @@ class Platform
 {
 private:
 	
-	Ogre::Vector3 mPosition;
-	Ogre::Entity* pPlatform;
-	Ogre::SceneNode* pPlatformNode;
-	Ogre::AxisAlignedBox mPlatformBoundingBox;
+	Ogre::Vector3 m_Position;
+	Ogre::Entity* m_pPlatform;
+	Ogre::SceneNode* m_pPlatformNode;
 
 public:
 
 	Platform();
-	Platform(Ogre::SceneManager* scnMan, Ogre::Vector3 pos, float xScale, float yScale, float zScale);
-	~Platform(){}
-
+	Platform(Ogre::SceneManager* scnMan, Ogre::Vector3 pos , Ogre::MaterialPtr mat, float x, float y);
+	~Platform() {};
 	Ogre::Vector3 getPosition();
+	Ogre::Vector3 getScale();
 
 
 };

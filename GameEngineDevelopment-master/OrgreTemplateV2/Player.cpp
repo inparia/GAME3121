@@ -1,129 +1,88 @@
+/***********************************************
+* Project            : Doodle Jump Game
+* Author             : Joon Young Sun
+* Student Number     : 101216511
+* Description        : Doodle Jump Game
+* Last modified      : 20/11/08
+|***********************************************/
+
 #include "Player.h"
 #include "Platform.h"
 
 Player::Player(Ogre::SceneManager* scnMan, Ogre::Vector3 _pos, Ogre::MaterialPtr mat)
 {
-	mPlayerSpeed = 1;
-	mPosition = _pos;
-	pPlayer = scnMan->createEntity(Ogre::SceneManager::PrefabType::PT_PLANE);
-	pPlayerNode = scnMan->getRootSceneNode()->createChildSceneNode();
-	pPlayerNode->setPosition(mPosition);
-	pPlayerNode->setScale(0.01, 0.01, 0.0f);
-	pPlayerNode->attachObject(pPlayer);
-	pPlayer->setMaterial(mat);
-	//mPlayerBoundingBox = pPlayer->getWorldBoundingBox(true);
+	m_PlayerSpeed = 1;
+	m_Position = _pos;
+	m_pPlayer = scnMan->createEntity(Ogre::SceneManager::PrefabType::PT_PLANE);
+	m_pPlayerNode = scnMan->getRootSceneNode()->createChildSceneNode();
+	m_pPlayerNode->setPosition(m_Position);
+	m_pPlayerNode->setScale(0.01, 0.01, 0.0f);
+	m_pPlayerNode->attachObject(m_pPlayer);
+	m_pPlayer->setMaterial(mat);
+	m_IsFalling = true;
 }
 
 
 
 void Player::MoveLeft()
 {
-	Ogre::Vector3 newPosition = pPlayerNode->getPosition() - Ogre::Vector3(0.5 * mPlayerSpeed, 0, 0);
-	pPlayerNode->setPosition(newPosition);
+	Ogre::Vector3 newPosition = m_pPlayerNode->getPosition() - Ogre::Vector3(0.5 * m_PlayerSpeed, 0, 0);
+	m_pPlayerNode->setPosition(newPosition);
 }
 
 void Player::MoveRight()
 {
-	Ogre::Vector3 newPosition = pPlayerNode->getPosition() - Ogre::Vector3(-0.5 * mPlayerSpeed, 0, 0);
-	pPlayerNode->setPosition(newPosition);
+	Ogre::Vector3 newPosition = m_pPlayerNode->getPosition() - Ogre::Vector3(-0.5 * m_PlayerSpeed, 0, 0);
+	m_pPlayerNode->setPosition(newPosition);
 }
 
 void Player::Jump()
 {
-	if (isOnGround) {
-		Ogre::Vector3 newPosition = pPlayerNode->getPosition() + Ogre::Vector3(0, 2 * mPlayerSpeed, 0);
-		pPlayerNode->setPosition(newPosition);
+	if (!m_IsFalling) {
+		Ogre::Vector3 newPosition = m_pPlayerNode->getPosition() + Ogre::Vector3(0, 5 * m_PlayerSpeed, 0);
+		m_pPlayerNode->setPosition(newPosition);
 	}
 }
 
 bool Player::getIsFalling()
 {
-	return isFalling;
-}
-
-bool Player::getIsAllowedToJump()
-{
-	return allowedToJump;
-}
-
-bool Player::getIsJumping()
-{
-	return isJumping;
-}
-
-float Player::getXVelocity()
-{
-	return xVelocity;
-}
-
-float Player::getYVelocity()
-{
-	return yVelocity;
+	return m_IsFalling;
 }
 
 Ogre::Vector3 Player::getPosition()
 {
-	return Ogre::Vector3();
+	return m_pPlayerNode->getPosition();
 }
 
-Ogre::AxisAlignedBox Player::getAABB()
-{
-	return pPlayer->getWorldBoundingBox(true);
-}
-
-void Player::setXVelocity(float xVol)
-{
-	xVol = xVelocity;
-}
-
-void Player::setYVelocity(float yVol)
-{
-	yVol = yVelocity;
-}
 
 void Player::setIsFalling(bool boolean)
 {
-	isFalling = boolean;
+	m_IsFalling = boolean;
 }
-
-void Player::setAllowedToJump(bool boolean)
-{
-	allowedToJump = boolean;
-}
-
-void Player::setisJumping(bool boolean)
-{
-	isJumping = boolean; 
-}
-
 
 
 void Player::Update()
 {
-	if (!isOnGround) {
-		pPlayerNode->setPosition(pPlayerNode->getPosition().x, pPlayerNode->getPosition().y - gamePhysics->getGravity(), pPlayerNode->getPosition().z);
-	}
-	if (pPlayerNode->getPosition().x < -11) 
-	{
-
-		pPlayerNode->setPosition(-10.9, pPlayerNode->getPosition().y, pPlayerNode->getPosition().z);
+	if (m_IsFalling) {
+		m_pPlayerNode->setPosition(m_pPlayerNode->getPosition().x, m_pPlayerNode->getPosition().y - 0.05, m_pPlayerNode->getPosition().z);
 	}
 
-	if (pPlayerNode->getPosition().x > 11)
-	{
-		pPlayerNode->setPosition(10.9, pPlayerNode->getPosition().y, pPlayerNode->getPosition().z);
-	}
-
-	//This code will never execute because there is no gravity yet. 
-	if (pPlayerNode->getPosition().y <= -5)
-	{
-		isOnGround = true;
-		gamePhysics->setGravity(0);
-	}
 	else
 	{
-		isOnGround = false;
-		gamePhysics->setGravity(0.05);
+		m_pPlayerNode->setPosition(m_pPlayerNode->getPosition().x, m_pPlayerNode->getPosition().y, m_pPlayerNode->getPosition().z);
 	}
+
+	if (m_pPlayerNode->getPosition().x < -11) 
+	{
+
+		m_pPlayerNode->setPosition(-10.9, m_pPlayerNode->getPosition().y, m_pPlayerNode->getPosition().z);
+	}
+
+	if (m_pPlayerNode->getPosition().x > 11)
+	{
+		m_pPlayerNode->setPosition(10.9, m_pPlayerNode->getPosition().y, m_pPlayerNode->getPosition().z);
+	}
+
+
 }
 

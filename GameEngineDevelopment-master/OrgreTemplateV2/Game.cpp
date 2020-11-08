@@ -1,25 +1,10 @@
-/***********************************************************************;
-* Project            : Simple Platform Game
-*
-* Program name       : "Jump Jump"
-*
-* Author             : David Gasinec
-*
-* Student Number     : 101187910
-*
-* Date created       : 20/10/28
-*
-* Description        : Simple pong game in OGRE.
-*
-* Last modified      : 20/10/28
-*
-* Revision History   :
-*
-* Date        Author Ref    Revision (Date in YYYYMMDD format)
-* 20/10/10    David Gasinec        Created Script.
-*
-|**********************************************************************/
-
+/***********************************************
+* Project            : Doodle Jump Game
+* Author             : Joon Young Sun
+* Student Number     : 101216511
+* Description        : Doodle Jump Game
+* Last modified      : 20/11/08
+|***********************************************/
 
 #include "Game.h"
 #include "OgreRectangle2D.h"
@@ -27,38 +12,38 @@
 
 using namespace std::chrono;
 
-Game::Game() : OgreBites::ApplicationContext("Simple Platform Game"){
+Game::Game() : OgreBites::ApplicationContext("Doodle Jump Game"){
 
 }
 
 Game::~Game()
 {
-	if (root)
+	if (m_Root)
 	{
-		delete[] root;
-		root = 0;
+		delete[] m_Root;
+		m_Root = 0;
 	}
-	if (rect)
+	if (m_Rectangle)
 	{
-		delete[] rect;
-		rect = 0;
+		delete[] m_Rectangle;
+		m_Rectangle = 0;
 	}
-	if (platformA && platformB)
+	if (m_FirstPlatform && m_SecondPlatform)
 	{
-		delete[] platformA;
-		delete[] platformB;
-		platformA = 0;
-		platformB = 0;
+		delete[] m_FirstPlatform;
+		delete[] m_SecondPlatform;
+		m_FirstPlatform = 0;
+		m_SecondPlatform = 0;
 	}
-	if (playerCharacter)
+	if (m_Player)
 	{
-		delete[] playerCharacter;
-		playerCharacter = 0;
+		delete[] m_Player;
+		m_Player = 0;
 	}
-	if (mTrayMgr)
+	if (m_TrayMgr)
 	{
-		delete[] mTrayMgr;
-		mTrayMgr = 0;
+		delete[] m_TrayMgr;
+		m_TrayMgr = 0;
 	}
 	
 }
@@ -72,8 +57,8 @@ void Game::setup(){
 	addInputListener(this);
 
 	//get a pointer to the already created root.
-	root = getRoot();
-	Ogre::SceneManager* scnMgr = root->createSceneManager();
+	m_Root = getRoot();
+	Ogre::SceneManager* scnMgr = m_Root->createSceneManager();
 
 	// Register our scxene with RTSS
 	Ogre::RTShader::ShaderGenerator* shaderGen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
@@ -106,82 +91,77 @@ void Game::setup(){
 
 	scnMgr->setShadowTechnique(Ogre::ShadowTechnique::SHADOWTYPE_STENCIL_ADDITIVE);
 
+	///Background Material
+	m_BackgroundMaterial = Ogre::MaterialManager::getSingleton().create("Background", "General");
+	m_BackgroundMaterial->getTechnique(0)->getPass(0)->createTextureUnitState("background.png");
+	m_BackgroundMaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
+	m_BackgroundMaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
+	m_BackgroundMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 
+	//Platform Material
+	m_PlatformMaterial = Ogre::MaterialManager::getSingleton().create("platform", "General");
+	m_PlatformMaterial->getTechnique(0)->getPass(0)->createTextureUnitState("platform.png");
+	m_PlatformMaterial->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_GREATER_EQUAL, 128, true);
+	m_PlatformMaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
+	m_PlatformMaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
+	m_PlatformMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(true);
 
-	// finally something to render
-	/*Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
-	Ogre::SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode();
-	node->attachObject(ent);*/
-
-	
-
-	//// Create background material
-	backGroundImage = Ogre::MaterialManager::getSingleton().create("Background", "General");
-	backGroundImage->getTechnique(0)->getPass(0)->createTextureUnitState("background.png");
-	backGroundImage->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
-	backGroundImage->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-	backGroundImage->getTechnique(0)->getPass(0)->setLightingEnabled(false);
-
-	// Create background rectangle covering the whole screen
-	rect = new Ogre::Rectangle2D(true);
-	rect->setCorners(-1.0, 1.0, 1.0, -1.0);
-	rect->setMaterial(backGroundImage);
+	m_Rectangle = new Ogre::Rectangle2D(true);
+	m_Rectangle->setCorners(-1.0, 1.0, 1.0, -1.0);
+	m_Rectangle->setMaterial(m_BackgroundMaterial);
 
 	// Render the background before everything else
-	rect->setRenderQueueGroup(Ogre::RENDER_QUEUE_BACKGROUND);
-
-	// Use infinite AAB to always stay visible
-	aabInf.setInfinite();
-	rect->setBoundingBox(aabInf);
+	m_Rectangle->setRenderQueueGroup(Ogre::RENDER_QUEUE_BACKGROUND);
 
 	// Attach background to the scene
-	rectNode = scnMgr->getRootSceneNode()->createChildSceneNode("Background");
-	rectNode->attachObject(rect);
+	m_RectangleNode = scnMgr->getRootSceneNode()->createChildSceneNode("Background");
+	m_RectangleNode->attachObject(m_Rectangle);
 	
-	//Add the player mat.
-	playerMat = Ogre::MaterialManager::getSingleton().create("doodle", "General");
-	playerMat->getTechnique(0)->getPass(0)->createTextureUnitState("doodle.png");
-	playerMat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_GREATER_EQUAL, 128, true);
-	playerMat->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
-	playerMat->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
-	playerMat->getTechnique(0)->getPass(0)->setLightingEnabled(true);
+	//Player Material
+	m_PlayerMaterial = Ogre::MaterialManager::getSingleton().create("doodle", "Player");
+	m_PlayerMaterial->getTechnique(0)->getPass(0)->createTextureUnitState("doodle.png");
+	m_PlayerMaterial->getTechnique(0)->getPass(0)->setAlphaRejectSettings(Ogre::CMPF_GREATER_EQUAL, 128, true);
+	m_PlayerMaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
+	m_PlayerMaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
+	m_PlayerMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(true);
 
 	// Intialize game stats.
 	
-	mThrottleFPSChange = 0;
-	mThrottleTPUChange = 0;
-
-	//Instantiate Floor
+	m_ThrottleFPSChange = 0;
+	m_ThrottleTPUChange = 0;
 
 	
 
 	// Instantiate Platforms.
 	Ogre::Vector3 floorPos = Ogre::Vector3(0, -5, 0);
-	floor = new Platform(scnMgr, floorPos, 0.2, 0.001, 0);
+	m_FloorPlatform = new Platform(scnMgr, floorPos, m_PlatformMaterial, 0.2, 0.003);
 	
 	Ogre::Vector3 paddlePos = Ogre::Vector3(0, -2, 0);
-	platformA = new Platform(scnMgr, paddlePos, 0.02, 0.001, 0);
+	m_FirstPlatform = new Platform(scnMgr, paddlePos, m_PlatformMaterial, 0.02, 0.003);
 	
 	Ogre::Vector3 paddlePos1 = Ogre::Vector3(2, 2, 0);
-	platformB = new Platform(scnMgr, paddlePos1, 0.02, 0.001, 0);
+	m_SecondPlatform = new Platform(scnMgr, paddlePos1, m_PlatformMaterial, 0.02, 0.003);
 
 	//Instantiate Player Character.
 
 	Ogre::Vector3 playerPos = Ogre::Vector3(0, 0, 0);
-	playerCharacter = new Player(scnMgr, playerPos, playerMat);
+	m_Player = new Player(scnMgr, playerPos, m_PlayerMaterial);
 
+	m_TotalPlatforms[0] = m_FloorPlatform;
+	m_TotalPlatforms[1] = m_FirstPlatform;
+	m_TotalPlatforms[2] = m_SecondPlatform;
 	// Instantiate game stats.
 
-	mTrayMgr = new OgreBites::TrayManager("UI", getRenderWindow());
+	m_TrayMgr = new OgreBites::TrayManager("UI", getRenderWindow());
 	scnMgr->addRenderQueueListener(Game::getOverlaySystem());
 
-	pFpsLabel = mTrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "FPS", "FPS:", 100);
-	pFps = mTrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "fps", "59", 50);
-	pTpuLabel = mTrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "Time/Update", "Time/Update:", 100);
-	pTpu = mTrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "tpu", "0", 50);
+	m_pFpsLabel = m_TrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "FPS", "FPS:", 100);
+	m_pFps = m_TrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "fps", "59", 50);
+	m_pTpuLabel = m_TrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "Time/Update", "Time/Update:", 100);
+	m_pTpu = m_TrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPLEFT, "tpu", "0", 50);
 
-	playerLb = mTrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPRIGHT, "score", "Score: ", 100);
-	playerSc = mTrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPRIGHT, "Score","Score: ", 100);
+	m_PlayerLabel = m_TrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPRIGHT, "score", "Score: ", 100);
+	m_playerScene = m_TrayMgr->createLabel(OgreBites::TrayLocation::TL_TOPRIGHT, "Score","Score: ", 100);
 
 }
 
@@ -194,17 +174,17 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent &evt)
 
 	if (evt.keysym.sym == OgreBites::SDLK_LEFT)
 	{
-		playerCharacter->MoveLeft();
+		m_Player->MoveLeft();
 	}
 
 	if (evt.keysym.sym == OgreBites::SDLK_RIGHT)
 	{
-		playerCharacter->MoveRight();
+		m_Player->MoveRight();
 	}
 
 	if (evt.keysym.sym == OgreBites::SDLK_SPACE)
 	{
-		playerCharacter->Jump();
+		m_Player->Jump();
 	}
 	return true;
 }
@@ -212,25 +192,20 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent &evt)
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
 
-	mFpsNum = 1 / evt.timeSinceLastFrame;
-	mThrottleFPSChange++;
-	if (mThrottleFPSChange > 240)
+	m_FpsNum = 1 / evt.timeSinceLastFrame;
+	m_ThrottleFPSChange++;
+	if (m_ThrottleFPSChange > 240)
 	{
-		pFps->setCaption(Ogre::StringConverter::toString(mFpsNum));
-		mThrottleFPSChange = 0;
+		m_pFps->setCaption(Ogre::StringConverter::toString(m_FpsNum));
+		m_ThrottleFPSChange = 0;
 	}
 	run();
 	return true;
 }
 
-void Game::processEvents()
-{
-
-}
 
 void Game::run(){
 	
-	processEvents();
 	update();
 }
 
@@ -240,20 +215,32 @@ void Game::update(){
 
 	// update stuff
 	
-	playerSc->setCaption(Ogre::StringConverter::toString(mPlayerScore));
+	m_playerScene->setCaption(Ogre::StringConverter::toString(m_PlayerScore));
 
-	playerCharacter->Update();
+	m_Player->Update();
+
+	for (Platform* tempPlatform : m_TotalPlatforms)
+	{
+		if (m_Physics->AABBCheck(m_Player, tempPlatform))
+		{
+			m_Player->setIsFalling(false);
+		}
+		else
+		{
+			m_Player->setIsFalling(true);
+		}
+	}
 
 
 	auto stop = high_resolution_clock::now();
 	auto duration = duration_cast<microseconds>(stop - start);
-	mTpuNum = duration.count();
-	mThrottleTPUChange++;
-	if (mThrottleTPUChange > 240)
+	m_TpuNum = duration.count();
+	m_ThrottleTPUChange++;
+	if (m_ThrottleTPUChange > 240)
 	{
 
-		pTpu->setCaption(Ogre::StringConverter::toString(mTpuNum));
-		mThrottleTPUChange = 0;
+		m_pTpu->setCaption(Ogre::StringConverter::toString(m_TpuNum));
+		m_ThrottleTPUChange = 0;
 	}
 }
 

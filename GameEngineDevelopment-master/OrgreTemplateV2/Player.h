@@ -1,27 +1,26 @@
+/***********************************************
+* Project            : Doodle Jump Game
+* Author             : Joon Young Sun
+* Student Number     : 101216511
+* Description        : Doodle Jump Game
+* Last modified      : 20/11/08
+|***********************************************/
+
 #pragma once
 #include<Ogre.h>
-#include "Physics.h"
 
-class Player : public Physics
+class Player
 {
 
 private:
 
-	float mPlayerSpeed;
-	float xVelocity;
-	float yVelocity;
-	float maxJump = 1;
-	bool isJumping = false;
-	bool isFalling = false;
-	bool allowedToJump = true;
-	bool isOnGround = false; 
+	float m_PlayerSpeed;
+	bool m_IsFalling = false;
 
-	Ogre::Vector3 mPosition;
-	Ogre::Entity* pPlayer;
-	Ogre::MaterialPtr pPlayerM; 
-	Ogre::SceneNode* pPlayerNode;
-	Ogre::AxisAlignedBox mPlayerBoundingBox;
-	Physics* gamePhysics = new Physics();
+	Ogre::Vector3 m_Position;
+	Ogre::Entity* m_pPlayer;
+	Ogre::MaterialPtr m_pPlayerMaterial; 
+	Ogre::SceneNode* m_pPlayerNode;
 
 
 public:
@@ -38,18 +37,8 @@ public:
 
 
 	bool getIsFalling();
-	bool getIsAllowedToJump();
-	bool getIsJumping();
-	float getXVelocity();
-	float getYVelocity();
-	Ogre::Vector3 getPosition();
-	Ogre::AxisAlignedBox getAABB();
-
-	void setXVelocity(float xVol);
-	void setYVelocity(float yVol);
 	void setIsFalling(bool boolean);
-	void setAllowedToJump(bool boolean);
-	void setisJumping(bool boolean);
+	Ogre::Vector3 getPosition();
 
 };
 
